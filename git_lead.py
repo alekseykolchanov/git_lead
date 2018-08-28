@@ -43,7 +43,9 @@ def parseFileChanges(file_changes_list):
             print("file_change: ", file_change)
             raise ValueError(file_change)
         file_name = parseFileName(parts[2])
-        file_changes.append(FileChange(file_name, int(parts[0]), int(parts[1])))
+        inserts = int(parts[0]) if parts[0].isdigit() else 0
+        deletions = int(parts[1]) if parts[1].isdigit() else 0
+        file_changes.append(FileChange(file_name, inserts, deletions))
     return file_changes
 
 
@@ -101,6 +103,7 @@ files_to_ignore_regex = list(map(lambda x: re.compile(x), files_to_ignore))
 commit_logs = []
 for branch in remote_branches:
     clean_branch = branch.strip()
+    #print("git log --no-merges --numstat --ignore-all-space --ignore-blank-lines --after=2018-08-27T16:45:00 --before=2018-08-28T16:45:00 --prettey=format:'0_0%aN;;;%H' " + clean_branch)
     log = check_output(['git', 'log', '--no-merges', '--numstat',
      '--ignore-all-space', '--ignore-blank-lines', '--after=' + after_date, '--before=' + before_date,
      '--pretty=format:"0_0%aN;;;%H"', clean_branch]).decode()
